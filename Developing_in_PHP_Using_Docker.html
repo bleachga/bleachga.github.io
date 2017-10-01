@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Developing_in_PHP_Using_Docker</title>
+
+
+<style type="text/css">
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: "Helvetica Neue", Helvetica, "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #737373;
+    background-color: white;
+    margin: 10px 13px 10px 13px;
+}
+table {
+	margin: 10px 0 15px 0;
+	border-collapse: collapse;
+}
+td,th {	
+	border: 1px solid #ddd;
+	padding: 3px 10px;
+}
+th {
+	padding: 5px 10px;	
+}
+
+a {
+    color: #0069d6;
+}
+a:hover {
+    color: #0050a3;
+    text-decoration: none;
+}
+a img {
+    border: none;
+}
+p {
+    margin-bottom: 9px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #404040;
+    line-height: 36px;
+}
+h1 {
+    margin-bottom: 18px;
+    font-size: 30px;
+}
+h2 {
+    font-size: 24px;
+}
+h3 {
+    font-size: 18px;
+}
+h4 {
+    font-size: 16px;
+}
+h5 {
+    font-size: 14px;
+}
+h6 {
+    font-size: 13px;
+}
+hr {
+    margin: 0 0 19px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+}
+blockquote {
+    padding: 13px 13px 21px 15px;
+    margin-bottom: 18px;
+    font-family:georgia,serif;
+    font-style: italic;
+}
+blockquote:before {
+    content:"\201C";
+    font-size:40px;
+    margin-left:-10px;
+    font-family:georgia,serif;
+    color:#eee;
+}
+blockquote p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+code, pre {
+    font-family: Monaco, Andale Mono, Courier New, monospace;
+}
+code {
+    background-color: #fee9cc;
+    color: rgba(0, 0, 0, 0.75);
+    padding: 1px 3px;
+    font-size: 12px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+pre {
+    display: block;
+    padding: 14px;
+    margin: 0 0 18px;
+    line-height: 16px;
+    font-size: 11px;
+    border: 1px solid #d9d9d9;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+pre code {
+    background-color: #fff;
+    color:#737373;
+    font-size: 11px;
+    padding: 0;
+}
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:10px auto;
+    }
+}
+@media print {
+	body,code,pre code,h1,h2,h3,h4,h5,h6 {
+		color: black;
+	}
+	table, pre {
+		page-break-inside: avoid;
+	}
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">Developing in PHP Using Docker</h1>
+
+<h2 id="toc_1">Step 1: Install Docker for Mac</h2>
+
+<p>Visit <a href="https://www.docker.com/docker-mac">https://www.docker.com/docker-mac</a> and download Docker for Mac.  It&#39;s free!</p>
+
+<h2 id="toc_2">Step 2: Build and Extract a Docker Compose File</h2>
+
+<p>Visit <a href="https://phpdocker.io/generator">https://phpdocker.io/generator</a>.  Fill in the following fields:</p>
+
+<ul>
+<li>Project Name - call it whatever you like.  Don&#39;t use spaces.  Example: <code>docker-web</code></li>
+<li>Base port:  Use something you&#39;re not already using on your local machine.  Example: <code>8022</code>.  Whatever you use, you&#39;ll use later when you browse to your site, e.g. <code>http://localhost:8022</code></li>
+<li>Extensions: I usually select <code>mysql</code> and <code>xdebug</code>.</li>
+<li><p>Turn on the switch for mysql (or MariaDB or Postgres) if you need a database.</p>
+
+<ul>
+<li>If you do so, you&#39;ll be asked for account names and passwords.</li>
+<li>root user pass: PestoMadnessFestival</li>
+<li>app database name:  MyAwesomeDb </li>
+<li>app database username: victortequila</li>
+<li>app database password: DropIcyBackpacks</li>
+</ul></li>
+<li><p>Click <em>Generate Project Archive</em>.  A zip file will download.</p></li>
+<li><p>Move the file to the location where you want the sandbox.  You do <em>not</em> need to create a new directory for it.  The root directory in the zip file will be whatever you named your project.  I moved mine into ~/Code</p></li>
+<li><p>Extract the zip file.</p></li>
+</ul>
+
+<p>Here&#39;s what you&#39;ll have after you extract the file:</p>
+
+<p><img src="dir_structure.png" alt="Directory Structure"></p>
+
+<h3 id="toc_3">docker-compose.yml</h3>
+
+<p>docker-compose is a tool that lets you define multiple Docker containers in one file.  The contents of our docker-compose.yml file:</p>
+
+<div><pre><code class="language-none">###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: &quot;3.1&quot;
+services:
+
+    mysql:
+      image: mysql:8.0
+      container_name: docker-web-mysql
+      working_dir: /application
+      volumes:
+        - .:/application
+      environment:
+        - MYSQL_ROOT_PASSWORD=PestoMadnessFestival
+        - MYSQL_DATABASE=MyAwesomeDb
+        - MYSQL_USER=victortequila
+        - MYSQL_PASSWORD=DropIcyBackpacks
+      ports:
+        - &quot;8024:3306&quot;
+
+    webserver:
+      image: nginx:alpine
+      container_name: docker-web-webserver
+      working_dir: /application
+      volumes:
+          - .:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - &quot;8022:80&quot;
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: docker-web-php-fpm
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.1/fpm/conf.d/99-overrides.ini
+
+</code></pre></div>
+
+<p>We have 3 entries in the services section:  mysql, webserver, and php-fpm.  These are pretty self-explanatory:  one container is created for the database, one for the web server (nginx), and one for PHP.</p>
+
+<p><strong>image</strong> specifies the image to start the container from.  Since the image doesn&#39;t currently exist, Docker will pull it from a public repository.  Note that <strong>php-fpm</strong> has a <strong>build</strong> item instead.  In this case, a path is provided to a <strong>build context</strong>.  If you follow that directory path, you&#39;ll see a separate Dockerfile.</p>
+
+<p><strong>container_name</strong> allows you to override the container name that Docker would otherwise generate for you.</p>
+
+<p><strong>working_dir</strong> specifies the working directory of the container that is created.  In all 3 containers, the path is /application.</p>
+
+<p><strong>volumes</strong> specifies file and directory mappings from your machine (e.g. your Mac) to the container&#39;s file system. The line:</p>
+
+<div><pre><code class="language-none">.:/application</code></pre></div>
+
+<p>is shorthand syntax for mapping the current directory on your Mac (where the docker-compose.yml is) to the directory /application in your container.</p>
+
+<p>Note that the webserver container adds a second mapping: </p>
+
+<div><pre><code class="language-none">./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf</code></pre></div>
+
+<p>The nginx.conf file that you unzipped becomes the actual configuration file for the webserver.</p>
+
+
+
+
+</body>
+
+</html>
