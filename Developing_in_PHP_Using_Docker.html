@@ -14,6 +14,7 @@ h2,
 h3,
 h4,
 h5,
+h6,
 p,
 blockquote {
     margin: 0;
@@ -164,22 +165,50 @@ sup {
 
 <h1 id="toc_0">Developing in PHP Using Docker</h1>
 
-<h2 id="toc_1">Step 1: Install Docker for Mac</h2>
+<p>When I first starting developing web applications, I used FTP and other methods to update a &quot;staging&quot; version of my website.  This was a pain, so I was happy when tools like XAMPP came along which bundled my technology stack (Apache, MySQL, PHP) to make it faster and easier to test and debug locally.</p>
+
+<p>I used XAMPP for many years, until I discovered Vagrant.  </p>
+
+<p>Vagrant made it fairly easy and quick to set up a virtual server with the technology stack that I needed, so I thought I&#39;d be a Vagrant user for quite some time.</p>
+
+<p>Until I came across container technology, specifically Docker.</p>
+
+<h2 id="toc_1">What is Docker?</h2>
+
+<p>Containers allow developers to package applications with all of the parts it needs and little else. With Vagrant, five virtual machines gave you five copies of Linux.  With containers like Docker, each container shares the same operating system: the one on your host.  The upside:  better performance and a smaller footprint.</p>
+
+<h2 id="toc_2">This Tutorial</h2>
+
+<p>In this tutorial, I&#39;ll show you how simple it is to set up Docker on a Mac and debug and test a PHP/MySQL web application.</p>
+
+<p>You&#39;ll notice a few really nice benefits of using Docker:</p>
+
+<ol>
+<li>It won&#39;t take very long to set up.</li>
+<li>It won&#39;t use a lot of space.</li>
+<li>You&#39;ll make no changes to the actual container.  You won&#39;t need to ssh into it for any reason.Recruit</li>
+<li>The container will be quite disposable.  Meaning:  you can delete it and create a new one without losing anything.</li>
+<li>You can use the tools on your Mac -- your IDE, your mysql client, etc.</li>
+</ol>
+
+<h2 id="toc_3">Step 1: Install Docker for Mac</h2>
 
 <p>Visit <a href="https://www.docker.com/docker-mac">https://www.docker.com/docker-mac</a> and download Docker for Mac.  It&#39;s free!</p>
 
-<h2 id="toc_2">Step 2: Build and Extract a Docker Compose File</h2>
+<h2 id="toc_4">Step 2: Build and Extract a Docker Compose File</h2>
+
+<p>We&#39;re going to take a shortcut in creating our Docker configuration -- an extremely helpful online tool I found at <strong>phpdocker.io</strong>.  The tool allows you to fill out a simple form and generate the config files that you&#39;ll need to build your containers.</p>
 
 <p>Visit <a href="https://phpdocker.io/generator">https://phpdocker.io/generator</a>.  Fill in the following fields:</p>
 
 <ul>
-<li>Project Name - call it whatever you like.  Don&#39;t use spaces.  Example: <code>docker-web</code></li>
-<li>Base port:  Use something you&#39;re not already using on your local machine.  Example: <code>8022</code>.  Whatever you use, you&#39;ll use later when you browse to your site, e.g. <code>http://localhost:8022</code></li>
-<li>Extensions: I usually select <code>mysql</code> and <code>xdebug</code>.</li>
+<li><em>Project Name</em> - Call it whatever you like.  Don&#39;t use spaces.  Example: <code>docker-web</code></li>
+<li><em>Base port</em>:  Use something you&#39;re not already using on your local machine.  Example: <code>8022</code>.  Whatever you use, you&#39;ll use later when you browse to your site, e.g. <code>http://localhost:8022</code></li>
+<li><em>Extensions</em>: Select <code>mysql</code> and <code>xdebug</code>.</li>
 <li><p>Turn on the switch for mysql (or MariaDB or Postgres) if you need a database.</p>
 
 <ul>
-<li>If you do so, you&#39;ll be asked for account names and passwords.</li>
+<li>If you do so, you&#39;ll be asked for account names and passwords.  It doesn&#39;t matter what they are right now, so I&#39;m filling in random values.</li>
 <li>root user pass: PestoMadnessFestival</li>
 <li>app database name:  MyAwesomeDb </li>
 <li>app database username: victortequila</li>
@@ -190,11 +219,11 @@ sup {
 <li><p>Extract the zip file.</p></li>
 </ul>
 
-<p>Here&#39;s what you&#39;ll have after you extract the file:</p>
+<p>Here&#39;s what you&#39;ll have in your sandbox after you extract the file:</p>
 
 <p><img src="dir_structure.png" alt="Directory Structure"></p>
 
-<h3 id="toc_3">docker-compose.yml</h3>
+<h3 id="toc_5">docker-compose.yml</h3>
 
 <p>docker-compose is a tool that lets you define multiple Docker containers in one file.  The contents of our docker-compose.yml file:</p>
 
@@ -240,7 +269,7 @@ services:
 
 <p>We have 3 entries in the services section:  mysql, webserver, and php-fpm.  These are pretty self-explanatory:  one container is created for the database, one for the web server (nginx), and one for PHP.</p>
 
-<p><strong>image</strong> specifies the image to start the container from.  Since the image doesn&#39;t currently exist, Docker will pull it from a public repository.  Note that <strong>php-fpm</strong> has a <strong>build</strong> item instead.  In this case, a path is provided to a <strong>build context</strong>.  If you follow that directory path, you&#39;ll see a separate Dockerfile.</p>
+<p><strong>image</strong> specifies the image to start the container from.  Since the image doesn&#39;t currently exist, Docker will pull it from a public repository.  Note that <strong>php-fpm</strong> has a <strong>build</strong> item instead.  In this case, a path is provided to a build context.  If you follow that directory path, you&#39;ll see a separate Dockerfile.</p>
 
 <p><strong>container_name</strong> allows you to override the container name that Docker would otherwise generate for you.</p>
 
@@ -256,7 +285,126 @@ services:
 
 <div><pre><code class="language-none">./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf</code></pre></div>
 
-<p>The nginx.conf file that you unzipped becomes the actual configuration file for the webserver.</p>
+<p>The nginx.conf file that you unzipped becomes the actual configuration file for the webserver.  This lets you edit it locally on your Mac.</p>
+
+<p><strong>environment</strong> lets you set environment variables that will be active inside the container.  In the mysql container, you can see the database information we set on phpdocker.io.  </p>
+
+<p>Finally, <strong>ports</strong> lets you specify a port mapping from your local host to your container.  In the webserver container, we can see that port 80 is mapped to port 8022 on our Mac.  You can also see that the standard port for mysql (3306) is mapped to port 8024 on our Mac.   This allows you to use the database using a local client.</p>
+
+<h4 id="toc_6">A Quick Change to the location of the database . . .</h4>
+
+<p>By default, our database will be stored on the container in <code>/var/lib/mysql</code>.  Because we want our containers to be completely disposable, let&#39;s map that directory on the container to one on our Mac.  For example, /Users/yourname/mysql. Create that folder, and in the mysql service section of docker-compose.yml, change the mapping from: </p>
+
+<div><pre><code class="language-none">volumes:
+  - .:/application</code></pre></div>
+
+<p>to:</p>
+
+<div><pre><code class="language-none">volumes:
+  - /Users/yourname/mysql:/var/lib/mysql</code></pre></div>
+
+<h2 id="toc_7">Step 3: Running the Container</h2>
+
+<p>docker-compose is the command you use for running multiple-container Docker applications.  To run the containers, issue the following command from your sandbox directory:</p>
+
+<div><pre><code class="language-none">docker-compose up -d</code></pre></div>
+
+<p>The -d option (for detached, but it could also stand for daemon) tells the command to run in the background.</p>
+
+<p>The first time you run the command will be different from subsequent runs. Because it hasn&#39;t bee run before, some software needs to be downloaded, and in the case of the php-fpm container, built.</p>
+
+<h2 id="toc_8">Step 4: Sanity Test</h2>
+
+<p>Before we run a quick test, if you take a look at the nginx config file, located in docker-web/phpdocker/nginx/nginx.conf, you&#39;ll see a pretty standard setup.  I&#39;ll call attention to one line:</p>
+
+<div><pre><code class="language-none">root /application/public;</code></pre></div>
+
+<p>In the container, it specifies that the root directory of the website is /<code>application/public</code>. Because /application maps to our sandbox directory (remember that from the docker-compose.yml file?), that means we can create a directory called public in our sandbox and that will be the root of the website.</p>
+
+<p>Let&#39;s test our newly built containers with a simple php file.</p>
+
+<div><pre><code class="language-none">$ mkdir public
+$ cd public
+$ cat &gt; index.php
+&lt;?php echo &quot;Hello!&quot;; ?&gt;
+(ctrl-d to exit)
+$ </code></pre></div>
+
+<p>And when we browse to the root of the website, we see:</p>
+
+<p><img src="sanity_test.png" alt="Sanity Test"></p>
+
+<h2 id="toc_9">Step 5: Link to Your Real Website</h2>
+
+<p>Now that we have our containers up and running, let&#39;s run with our real application.</p>
+
+<p>We don&#39;t want to copy our application into our docker-web directory, so we&#39;ll simply change the mappings in our docker-compose.yml file:</p>
+
+<p>In the webserver and php-fpm containers, we&#39;ll change the mapping from: </p>
+
+<div><pre><code class="language-none">- .:/application</code></pre></div>
+
+<p>to:</p>
+
+<div><pre><code class="language-none">- [Path-to-your-website-files]:/application/public</code></pre></div>
+
+<p>Now we have to restart the containers:</p>
+
+<div><pre><code class="language-none">docker-compose restart</code></pre></div>
+
+<p>If all went well, you can browse to <code>localhost:8022</code> and see your web application.</p>
+
+<h2 id="toc_10">Step 6: Load Your Database</h2>
+
+<p>In the docker-compose.yml, mysql is mapped from the default (3306) to port 8024 on my Mac.  So, we can connect to it from mysql on the Mac:</p>
+
+<div><pre><code class="language-none">mysql -uroot -p -h 127.0.0.1 -P 8024
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.</code></pre></div>
+
+<p>Remember to use the mysql root password from the docker-compose.yml file.  </p>
+
+<p>Using a backup file, it&#39;s easy enough to load the database for the application:</p>
+
+<div><pre><code class="language-none">mysql&gt; create database appdb;
+Query OK, 1 row affected (0.00 sec)
+
+mysql&gt; use appdb;
+Database changed
+
+mysql&gt; source appdb_backup.sql;</code></pre></div>
+
+<p>And now we have a fully stocked database.</p>
+
+<h2 id="toc_11">Step 7: Get Debugging Working</h2>
+
+<p>Before I do any kind of development, the first thing I want to make sure of is that I can debug my code -- set breakpoints, single-step, etc.</p>
+
+<p>When we created our container, we specified that the xdebug extension should be included in the web server. The challenge is that xdebug on the container needs to communicate with the host.  The host, however, cannot be counted on to always have the same IP address.  Docker for Mac provides a DNS name (<code>docker.for.mac.localhost</code>) which will always resolve to the internal IP address used by the host.  Pretty cool, right?</p>
+
+<p>We have to make a slight change to the PHP config file.  In the <code>phpdocker/php-fpm/php-ini-overrides.ini</code>, we add 3 lines:</p>
+
+<div><pre><code class="language-none">xdebug.remote_enable=1
+xdebug.remote_host=docker.for.mac.localhost
+xdebug.remote_connect_back=0</code></pre></div>
+
+<p><strong>Important:</strong> After changing the file, be sure to restart the container by running <code>docker-compose restart</code>.</p>
+
+<h3 id="toc_12">Example: Debugging in PHPStorm</h3>
+
+<p>To set up debugging, I&#39;ll use PHPStorm as an example, but the principles are the same for other IDEs or debuggers.</p>
+
+<h4 id="toc_13">Run/Debug Configuration</h4>
+
+<p><img src="run_config.png" alt="PHPStorm Run/Debug Configuration"></p>
+
+<h4 id="toc_14">Server Configuration</h4>
+
+<p><img src="server_config.png" alt="PHPStorm Server Configuration"></p>
+
+<h2 id="toc_15">That&#39;s It!</h2>
+
+<p>As you can see, using Docker for your development sandbox is quick and easy, with minimal impact on your development machine.  There&#39;s a lot more to explore, but this should give you a good head start on your exploration.</p>
 
 
 
