@@ -1,6 +1,5 @@
 # Developing in PHP Using Docker
 *Brian Leach, Steelray Software*
-
 ![Little Boxes . . .](boxes.png)
 
 When I first starting developing web applications, I used FTP and other methods to update a "staging" version of my website.  This was a pain, so I was happy when tools like XAMPP came along which bundled my technology stack (Apache, MySQL, PHP) to make it faster and easier to test and debug locally.
