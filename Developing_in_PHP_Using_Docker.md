@@ -1,5 +1,6 @@
 # Developing in PHP Using Docker
 *Brian Leach, Steelray Software*
+
 ![Little Boxes . . .](boxes.png)
 
 When I first starting developing web applications, I used FTP and other methods to update a "staging" version of my website.  This was a pain, so I was happy when tools like XAMPP came along which bundled my technology stack (Apache, MySQL, PHP) to make it faster and easier to test and debug locally.
@@ -22,7 +23,7 @@ You'll notice a few really nice benefits of using Docker:
 
 1. It won't take very long to set up.
 2. It won't use a lot of space.
-3. You'll make no changes to the actual container.  You won't need to ssh into it for any reason.Recruit
+3. You'll make no changes to the actual container.  You won't need to ssh into it for any reason.
 4. The container will be quite disposable.  Meaning:  you can delete it and create a new one without losing anything.
 5. You can use the tools on your Mac -- your IDE, your mysql client, etc.
 
@@ -154,7 +155,7 @@ docker-compose up -d
 
 The -d option (for detached, but it could also stand for daemon) tells the command to run in the background.
 
-The first time you run the command will be different from subsequent runs. Because it hasn't bee run before, some software needs to be downloaded, and in the case of the php-fpm container, built.
+The first time you run the command will be different from subsequent runs. Because it hasn't been run before, some software needs to be downloaded, and in the case of the php-fpm container, built.
 
 ## Step 4: Sanity Test
 Before we run a quick test, if you take a look at the nginx config file, located in docker-web/phpdocker/nginx/nginx.conf, you'll see a pretty standard setup.  I'll call attention to one line:
